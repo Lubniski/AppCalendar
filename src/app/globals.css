@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #faf7f8;
+  --surface: #ffffff;
+  --line: #eee4e8;
+  --ink: #241c20;
+  --muted: #85757c;
+  --brand-50: #fdf3f6;
+  --brand-100: #f9e2ea;
+  --brand-200: #f2c3d2;
+  --brand-300: #e79cb4;
+  --brand-400: #dd7698;
+  --brand-500: #cf5682;
+  --brand-600: #b8416c;
+  --brand-700: #963457;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
+  --font-script: var(--font-pacifico);
+}
+
+html,
+body {
+  background: var(--surface);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+.safe-top {
+  padding-top: max(env(safe-area-inset-top), 12px);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom), 12px);
+}
+
+/* ---------- notification animations ---------- */
+
+@keyframes drop-in {
+  0% { transform: translateY(-120%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.anim-drop-in { animation: drop-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+@keyframes ring {
+  0%, 100% { transform: rotate(0); }
+  10%, 30% { transform: rotate(-14deg); }
+  20%, 40% { transform: rotate(14deg); }
+  50% { transform: rotate(0); }
+}
+.anim-ring { animation: ring 2s ease-in-out infinite; transform-origin: 50% 10%; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.anim-shake { animation: shake 0.5s ease-in-out 0.45s 2; }
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(207, 86, 130, 0.45); }
+  100% { box-shadow: 0 0 0 12px rgba(207, 86, 130, 0); }
+}
+.anim-pulse { animation: pulse-ring 1.6s ease-out infinite; }
+
+/* melting: the card sags and stretches, then drips fall down the screen */
+@keyframes melt-card {
+  0% { transform: translateY(0) scaleY(1); border-radius: 16px; }
+  40% { transform: translateY(8px) scaleY(1.06) skewX(-1.5deg); border-radius: 16px 16px 48px 32px; }
+  70% { transform: translateY(20px) scaleY(1.16) skewX(1.5deg); border-radius: 16px 16px 72px 56px; }
+  100% { transform: translateY(32px) scaleY(1.24); border-radius: 16px 16px 96px 72px; }
+}
+.anim-melt-card { animation: melt-card 3.2s ease-in forwards; transform-origin: top center; }
+
+@keyframes drip {
+  0% { height: 0; }
+  100% { height: var(--drip-len); }
+}
+.drip {
+  position: absolute;
+  top: 100%;
+  width: var(--drip-w);
+  border-radius: 0 0 999px 999px;
+  animation: drip var(--drip-dur) cubic-bezier(0.5, 0, 0.9, 0.6) var(--drip-delay) forwards;
+}
+.drip::after {
+  content: "";
+  position: absolute;
+  bottom: calc(var(--drip-w) * -0.45);
+  left: 50%;
+  width: calc(var(--drip-w) * 1.35);
+  height: calc(var(--drip-w) * 1.35);
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: inherit;
+}
+
+@keyframes puddle {
+  0% { transform: scaleX(0.2); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 1; }
+}
+.anim-puddle { animation: puddle 1.4s ease-out 2.6s both; transform-origin: center; }
+
+@keyframes wobble-text {
+  0%, 100% { transform: skewY(0) translateY(0); }
+  50% { transform: skewY(2deg) translateY(2px); }
+}
+.anim-wobble { animation: wobble-text 1.2s ease-in-out infinite; }
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.anim-sheet { animation: sheet-up 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+@keyframes drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.anim-drawer { animation: drawer-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.anim-fade { animation: fade-in 0.2s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

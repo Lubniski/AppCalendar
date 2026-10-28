@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "clerk-backend-api": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-backend-api/SKILL.md",
+      "computedHash": "f546f7a163670ff580271573e52e01f2a539fcbd6b3b2d6dd714656f60ee1a65"
+    },
+    "clerk-custom-ui": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-custom-ui/SKILL.md",
+      "computedHash": "ab1a18230efbd7f182731ac01cb8b7b84b05d5fe3bf5bc905d30e1af96633fc3"
+    },
+    "clerk-nextjs-patterns": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-nextjs-patterns/SKILL.md",
+      "computedHash": "208b936809f814fa0aa2a6e15b2e880b8b9fee5f0b3ca4fce9ac2f2ea7472418"
+    },
+    "clerk-orgs": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-orgs/SKILL.md",
+      "computedHash": "f066158c8fccc608d9fed605e8abe2dabb933187ec2c8606366ac3d7a52f53c1"
+    },
+    "clerk-setup": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-setup/SKILL.md",
+      "computedHash": "e842969c52014a6223207fc2330e0ef038fc2a1940b01c335ff5519846d13e41"
+    },
+    "clerk-webhooks": {
+      "source": "clerk/skills",
+      "sourceType": "github",
+      "skillPath": "skills/clerk-webhooks/SKILL.md",
+      "computedHash": "2e09a26af49fcd7081b9c370e9c2008f1ff5ee4474141fd2c693431358c9e4ec"
+    },
+    "upstash-qstash-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-qstash-js/SKILL.md",
+      "computedHash": "3bb489d204f0eb8633d7d347f4ddebf8e2c73481c4d9ba1dc69c56a4940ffb0d"
+    },
+    "upstash-ratelimit-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-ratelimit-js/SKILL.md",
+      "computedHash": "91f5df89a4d6085068fe6297f2387eacbd38e49f14fae7718606cc2c0d3b9673"
+    },
+    "upstash-redis-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-redis-js/SKILL.md",
+      "computedHash": "c5b893ce5329b3502822654fec64205d77a2cf6767803b307c448111a0622a52"
+    },
+    "upstash-workflow-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-workflow-js/SKILL.md",
+      "computedHash": "f5d8538c2bf4f35bac6a2ab9a9a1f4509bb7bcc4b48ca7d64981a714955d515e"
+    }
+  }
+}
