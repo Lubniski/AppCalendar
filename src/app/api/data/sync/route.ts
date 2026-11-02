@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { cleanReminderOffsets } from "@/lib/reminders";
 import { redis } from "@/lib/server/pushStore";
 import { EMPTY_DOC, docKey, isEmptyDoc, mergeDocs, type SyncDoc } from "@/lib/sync";
 
@@ -23,6 +24,7 @@ function sanitize(input: Partial<SyncDoc> | undefined): SyncDoc {
     .slice(0, 200)
     .map((t) => ({
       id: t.id, name: t.name, color: t.color, priority: t.priority, difficulty: t.difficulty,
+      ...(cleanReminderOffsets(t.reminders) ? { reminders: cleanReminderOffsets(t.reminders) } : {}),
       ...(num(t.updatedAt) ? { updatedAt: t.updatedAt } : {}),
     }));
   const todos = (Array.isArray(input?.todos) ? input.todos : [])

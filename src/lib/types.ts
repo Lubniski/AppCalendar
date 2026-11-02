@@ -6,6 +6,11 @@ export type Tag = {
   color: string;
   priority: Level;
   difficulty: Level;
+  /**
+   * Reminders chosen by hand, as ms before the event (values from REMINDER_OPTIONS).
+   * When missing, they come from priority + difficulty.
+   */
+  reminders?: number[];
   /** Last edit time (ms), used to merge copies across devices. */
   updatedAt?: number;
 };
