@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect } from "react";
-import { appName, iconUrl, manifestUrl, safeColor, themeVars, type Profile } from "./theme";
+import { PROFILE_COOKIE, appName, iconUrl, manifestUrl, profileCookieValue, safeColor, themeVars, type Profile } from "./theme";
 
 function setHead(selector: string, attr: string, value: string, create: () => HTMLElement) {
   let el = document.head.querySelector<HTMLElement>(selector);
@@ -29,5 +29,10 @@ export function useApplyProfile(profile: Profile | null) {
     setHead('meta[name="theme-color"]', "content", themeVars(safeColor(profile?.color))["--bg"], meta("theme-color"));
     setHead('link[rel="manifest"]', "href", manifestUrl(profile), link("manifest"));
     setHead('link[rel="apple-touch-icon"]', "href", iconUrl(profile, 180), link("apple-touch-icon"));
+
+    // Also tell the server, for icon/manifest requests that come without our query string.
+    document.cookie = profile
+      ? `${PROFILE_COOKIE}=${profileCookieValue(profile)}; path=/; max-age=31536000; samesite=lax${location.protocol === "https:" ? "; secure" : ""}`
+      : `${PROFILE_COOKIE}=; path=/; max-age=0`;
   }, [profile]);
 }

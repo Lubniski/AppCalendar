@@ -44,6 +44,8 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin || url.pathname.startsWith("/api/")) return;
+  // Personalized from the profile cookie: always ask the server.
+  if (!url.search && (url.pathname === "/app-manifest" || url.pathname.startsWith("/pwa-icon/"))) return;
 
   // Pages: network first so updates arrive; the cached app when offline.
   if (request.mode === "navigate") {

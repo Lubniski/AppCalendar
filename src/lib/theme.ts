@@ -87,6 +87,26 @@ export function iconUrl(profile: Profile | null, size: number) {
   return `/pwa-icon/${size}?l=${encodeURIComponent(initialOf(profile?.name ?? ""))}&c=${c}`;
 }
 
+/**
+ * Name and color are also kept in a cookie, so the server can personalize the
+ * home-screen icon and manifest whenever Safari asks for them.
+ */
+export const PROFILE_COOKIE = "romiorg_profile";
+
+export function profileCookieValue(profile: Profile) {
+  return encodeURIComponent(JSON.stringify({ n: cleanName(profile.name), c: safeColor(profile.color) }));
+}
+
+export function profileFromCookie(raw: string | undefined): Profile | null {
+  if (!raw) return null;
+  try {
+    const { n, c } = JSON.parse(decodeURIComponent(raw)) as { n?: unknown; c?: unknown };
+    return { name: cleanName(typeof n === "string" ? n : ""), color: safeColor(typeof c === "string" ? c : null) };
+  } catch {
+    return null;
+  }
+}
+
 export function manifestUrl(profile: Profile | null) {
   return `/app-manifest?n=${encodeURIComponent(displayName(profile))}&c=${safeColor(profile?.color).slice(1)}`;
 }

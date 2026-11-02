@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { esUY } from "@clerk/localizations";
 import { Fraunces, Inter, Pacifico } from "next/font/google";
-import { appName, iconUrl, manifestUrl } from "@/lib/theme";
+import { appName } from "@/lib/theme";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,14 +21,14 @@ const fraunces = Fraunces({
   subsets: ["latin"],
 });
 
-// Name, icon and manifest are personalized on the client once the profile loads.
+// The manifest and icon read the profile cookie on the server, and the client
+// also points them (and the app title) at the user's name once it loads.
 export const metadata: Metadata = {
   title: appName(null),
   description: "Calendario con recordatorios según prioridad y dificultad",
-  manifest: manifestUrl(null),
-  icons: { apple: iconUrl(null, 180) },
+  manifest: "/app-manifest",
+  icons: { apple: "/pwa-icon/180" },
   appleWebApp: {
-    title: appName(null),
     capable: true,
     statusBarStyle: "default",
   },

@@ -6,7 +6,7 @@ import { pushEnabled, pushSupported } from "@/lib/push";
 import type { CalendarEvent, NotifStyle, Tag } from "@/lib/types";
 import { DEFAULT_COLOR, appName, type Profile } from "@/lib/theme";
 import type { ActiveNotif } from "./NotificationLayer";
-import { ProfileEditor } from "./ProfileEditor";
+import { AppIconPreview, ProfileEditor } from "./ProfileEditor";
 import { Sheet, primaryBtn } from "./Sheet";
 
 const DEMOS: { style: NotifStyle; name: string; desc: string; label: string; Icon: LucideIcon }[] = [
@@ -81,11 +81,19 @@ export function SettingsSheet({ sync, profile, onProfile, tags, onPreview, onEna
   return (
     <Sheet title="Ajustes" onClose={onClose}>
       {!standalone && (
-        <div className="mb-5 flex gap-3 rounded-xl border border-line p-3.5 text-sm">
-          <Share size={18} className="mt-0.5 shrink-0 text-brand-500" />
-          <p className="leading-relaxed text-muted">
-            <span className="block font-medium text-ink">Instalar en el iPhone</span>
-            En Safari tocá <b className="font-medium text-ink">Compartir</b> → <b className="font-medium text-ink">Agregar a pantalla de inicio</b>. Es necesario para recibir notificaciones.
+        <div className="mb-5 rounded-xl border border-line p-3.5 text-sm">
+          <div className="mb-3 flex items-center gap-3">
+            <AppIconPreview profile={profile ?? { name: "", color: DEFAULT_COLOR }} size={52} />
+            <p className="leading-snug text-muted">
+              Se va a guardar en tu pantalla de inicio como
+              <span className="block text-base font-semibold text-ink">{appName(profile)}</span>
+            </p>
+          </div>
+          <p className="flex gap-2 leading-relaxed text-muted">
+            <Share size={16} className="mt-0.5 shrink-0 text-brand-500" />
+            <span>
+              En Safari tocá <b className="font-medium text-ink">Compartir</b> → <b className="font-medium text-ink">Agregar a pantalla de inicio</b>. Es necesario para recibir notificaciones.
+            </span>
           </p>
         </div>
       )}
@@ -94,7 +102,9 @@ export function SettingsSheet({ sync, profile, onProfile, tags, onPreview, onEna
       <div className="mb-6">
         <ProfileEditor profile={profile ?? { name: "", color: DEFAULT_COLOR }} onChange={onProfile} />
         <p className="mt-3 text-xs leading-relaxed text-muted">
-          Si ya la tenés en la pantalla de inicio, para ver el ícono nuevo borrala y volvé a agregarla desde Safari.
+          {standalone
+            ? "Los cambios se ven al toque dentro de la app. Para que cambie el nombre y el ícono de la pantalla de inicio, borrala y volvé a agregarla desde Safari (tus datos quedan en tu cuenta)."
+            : "El nombre y el ícono se toman al agregarla a la pantalla de inicio. Si después los cambiás, borrala y volvé a agregarla."}
         </p>
       </div>
 
