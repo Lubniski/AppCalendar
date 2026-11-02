@@ -25,6 +25,10 @@ function sanitize(input: Partial<SyncDoc> | undefined): SyncDoc {
       id: t.id, name: t.name, color: t.color, priority: t.priority, difficulty: t.difficulty,
       ...(num(t.updatedAt) ? { updatedAt: t.updatedAt } : {}),
     }));
+  const todos = (Array.isArray(input?.todos) ? input.todos : [])
+    .filter((t) => str(t?.id, 64) && str(t.text, 200) && t.text.trim() && num(t.createdAt))
+    .slice(0, 500)
+    .map((t) => ({ id: t.id, text: t.text, createdAt: t.createdAt, ...(num(t.updatedAt) ? { updatedAt: t.updatedAt } : {}) }));
   const deleted: Record<string, number> = {};
   if (input?.deleted && typeof input.deleted === "object") {
     for (const [k, v] of Object.entries(input.deleted).slice(0, MAX_ITEMS)) if (str(k, 70) && num(v)) deleted[k] = v;
@@ -32,7 +36,7 @@ function sanitize(input: Partial<SyncDoc> | undefined): SyncDoc {
   const p = input?.profile;
   const profile =
     p && str(p.name, 40) && str(p.color, 9) ? { name: p.name, color: p.color, ...(num(p.updatedAt) ? { updatedAt: p.updatedAt } : {}) } : null;
-  return { events, tags, deleted, profile };
+  return { events, tags, todos, deleted, profile };
 }
 
 /**

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarRange, Check, Columns3, Rows3, Settings2, Square, Tags, type LucideIcon } from "lucide-react";
+import { CalendarDays, CalendarRange, Check, Columns3, ListChecks, Rows3, Settings2, Square, Tags, type LucideIcon } from "lucide-react";
 import { VIEW_LABELS, type ViewMode } from "@/lib/dates";
 import type { Profile } from "@/lib/theme";
 import type { Tag } from "@/lib/types";
@@ -16,6 +16,8 @@ const VIEW_ICONS: Record<ViewMode, LucideIcon> = {
 
 type Props = {
   profile: Profile | null;
+  todoCount: number;
+  onTodos: () => void;
   view: ViewMode;
   tags: Tag[];
   hidden: string[];
@@ -28,7 +30,7 @@ type Props = {
 
 const item = "flex w-full items-center gap-4 rounded-full px-4 py-3 text-left text-[15px] font-medium transition";
 
-export function Drawer({ profile, view, tags, hidden, onView, onToggleTag, onManageTags, onSettings, onClose }: Props) {
+export function Drawer({ profile, todoCount, onTodos, view, tags, hidden, onView, onToggleTag, onManageTags, onSettings, onClose }: Props) {
   return (
     <div className="anim-fade fixed inset-0 z-40 bg-ink/30" onClick={onClose}>
       <nav
@@ -39,6 +41,14 @@ export function Drawer({ profile, view, tags, hidden, onView, onToggleTag, onMan
           <Wordmark profile={profile} className="text-[22px]" />
         </p>
         <ul className="border-b border-line pb-2">
+          <li>
+            <button onClick={onTodos} className={`${item} text-ink active:bg-bg`}>
+              <ListChecks size={20} /> <span className="flex-1">Cosas para hacer</span>
+              {todoCount > 0 && <span className="text-sm text-muted">{todoCount}</span>}
+            </button>
+          </li>
+        </ul>
+        <ul className="border-b border-line py-2">
           {(Object.keys(VIEW_LABELS) as ViewMode[]).map((v) => {
             const Icon = VIEW_ICONS[v];
             const active = v === view;

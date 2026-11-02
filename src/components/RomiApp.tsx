@@ -13,7 +13,7 @@ import { AgendaView } from "@/components/views/AgendaView";
 import { MonthView } from "@/components/views/MonthView";
 import { TimeGridView } from "@/components/views/TimeGridView";
 import { dayKey, shiftCursor, visibleDays } from "@/lib/dates";
-import { disablePush, enablePush, syncReminders } from "@/lib/push";
+import { closeTodoNotifications, disablePush, enablePush, pushEnabled, refreshTodoNotification, syncPush } from "@/lib/push";
 import { useRomiStore } from "@/lib/store";
 import type { CalendarEvent } from "@/lib/types";
 import { initialOf, type Profile } from "@/lib/theme";
@@ -23,11 +23,13 @@ import { AccountSection } from "@/components/AccountSection";
 import { AuthScreen } from "@/components/AuthScreen";
 import { useReminderEngine } from "@/lib/useReminderEngine";
 import { Welcome } from "@/components/Welcome";
+import { TodoSheet } from "@/components/TodoSheet";
 
 type Panel =
   | { kind: "event"; event: CalendarEvent | null; day?: string; time?: string }
   | { kind: "tags" }
   | { kind: "settings" }
+  | { kind: "todos" }
   | null;
 
 export default function RomiApp() {
@@ -39,10 +41,11 @@ export default function RomiApp() {
     if (store.owner) store.resetLocal();
     store.setOwner(userId);
   }
-  const { tags, events, view } = store;
+  const { tags, events, todos, todoPrefs, view } = store;
   const [cursor, setCursor] = useState(() => new Date());
   const [drawer, setDrawer] = useState(false);
-  const [panel, setPanel] = useState<Panel>(null);
+  // Tapping the to-do notification opens the app on /?todos=1.
+  const [panel, setPanel] = useState<Panel>(() => (new URLSearchParams(location.search).has("todos") ? { kind: "todos" } : null));
   const engine = useReminderEngine(events, tags, store.ready);
   const [now, setNow] = useState(() => Date.now());
   const touch = useRef<{ x: number; y: number } | null>(null);
@@ -74,16 +77,37 @@ export default function RomiApp() {
     }
   }, []);
 
-  // Keep the server's copy of upcoming reminders in sync (debounced, and again when back online).
+  // Keep the server's copy of upcoming reminders and the to-do list in sync (debounced, and again when back online).
   useEffect(() => {
-    const run = () => void syncReminders(events, tags).catch(() => {});
+    const run = () => void syncPush(events, tags, todos, todoPrefs).catch(() => {});
     const id = setTimeout(run, 1500);
     window.addEventListener("online", run);
     return () => {
       clearTimeout(id);
       window.removeEventListener("online", run);
     };
-  }, [events, tags]);
+  }, [events, tags, todos, todoPrefs]);
+
+  // When leaving the app after changing the list, put the new version on the lock screen.
+  const todosKey = JSON.stringify([todos.map((t) => t.text), todoPrefs]);
+  const shownTodos = useRef(todosKey);
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState !== "hidden" || shownTodos.current === todosKey) return;
+      shownTodos.current = todosKey;
+      if (todos.length === 0 || !todoPrefs.enabled) void closeTodoNotifications();
+      else refreshTodoNotification(todos, todoPrefs);
+    };
+    document.addEventListener("visibilitychange", onHide);
+    return () => document.removeEventListener("visibilitychange", onHide);
+  }, [todosKey, todos, todoPrefs]);
+
+  useEffect(() => {
+    if (new URLSearchParams(location.search).has("todos")) window.history.replaceState(null, "", location.pathname);
+    const onMessage = (e: MessageEvent) => e.data?.type === "romiorg:todos" && setPanel({ kind: "todos" });
+    navigator.serviceWorker?.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker?.removeEventListener("message", onMessage);
+  }, []);
 
   async function handleSignOut() {
     setPanel(null);
@@ -126,6 +150,8 @@ export default function RomiApp() {
   return (
     <main className="mx-auto flex h-dvh w-full max-w-md flex-col overflow-hidden bg-surface">
       <TopBar
+        todoCount={todos.length}
+        onTodos={() => setPanel({ kind: "todos" })}
         initial={initialOf(store.profile?.name ?? "")}
         cursor={cursor}
         showMonthLink={view !== "month"}
@@ -191,6 +217,8 @@ export default function RomiApp() {
       {drawer && (
         <Drawer
           profile={store.profile}
+          todoCount={todos.length}
+          onTodos={() => { setDrawer(false); setPanel({ kind: "todos" }); }}
           view={view}
           tags={tags}
           hidden={store.hidden}
@@ -213,6 +241,20 @@ export default function RomiApp() {
           onManageTags={() => setPanel({ kind: "tags" })}
         />
       )}
+      {panel?.kind === "todos" && (
+        <TodoSheet
+          todos={todos}
+          prefs={todoPrefs}
+          pushOn={pushEnabled()}
+          onAdd={store.addTodo}
+          onEdit={store.editTodo}
+          onComplete={store.completeTodo}
+          onRestore={store.restoreTodo}
+          onPrefs={store.setTodoPrefs}
+          onOpenSettings={() => setPanel({ kind: "settings" })}
+          onClose={() => setPanel(null)}
+        />
+      )}
       {panel?.kind === "tags" && (
         <TagSheet tags={tags} onSave={store.saveTag} onDelete={store.deleteTag} onClose={() => setPanel(null)} />
       )}
@@ -231,7 +273,7 @@ export default function RomiApp() {
           onProfile={store.setProfile}
           tags={tags}
           onPreview={engine.preview}
-          onEnablePush={() => enablePush(events, tags)}
+          onEnablePush={() => enablePush(events, tags, todos, todoPrefs)}
           onClose={() => setPanel(null)}
         />
       )}

@@ -1,19 +1,21 @@
 import type { Profile } from "./theme";
+import type { TodoItem } from "./todos";
 import type { CalendarEvent, Tag } from "./types";
 
 /**
  * Everything that is backed up to the server for the signed-in user. Each event/tag
- * carries `updatedAt`; deletions are kept as tombstones (`e:<id>` / `t:<id>`)
+ * carries `updatedAt`; deletions are kept as tombstones (`e:<id>`, `t:<id>`, `o:<id>`)
  * so that merging two copies never resurrects deleted items.
  */
 export type SyncDoc = {
   events: CalendarEvent[];
   tags: Tag[];
+  todos: TodoItem[];
   deleted: Record<string, number>;
   profile: Profile | null;
 };
 
-export const EMPTY_DOC: SyncDoc = { events: [], tags: [], deleted: {}, profile: null };
+export const EMPTY_DOC: SyncDoc = { events: [], tags: [], todos: [], deleted: {}, profile: null };
 
 function mergeItems<T extends { id: string; updatedAt?: number }>(a: T[], b: T[], deleted: Record<string, number>, prefix: string) {
   const byId = new Map<string, T>();
@@ -36,13 +38,14 @@ export function mergeDocs(a: SyncDoc, b: SyncDoc): SyncDoc {
   return {
     events: mergeItems(a.events, b.events, deleted, "e").sort((x, y) => x.id.localeCompare(y.id)),
     tags: mergeItems(a.tags, b.tags, deleted, "t"),
+    todos: mergeItems(a.todos ?? [], b.todos ?? [], deleted, "o").sort((x, y) => x.createdAt - y.createdAt || x.id.localeCompare(y.id)),
     deleted,
     profile,
   };
 }
 
 export function isEmptyDoc(doc: SyncDoc) {
-  return !doc.profile && doc.events.length === 0 && Object.keys(doc.deleted).length === 0;
+  return !doc.profile && doc.events.length === 0 && (doc.todos ?? []).length === 0 && Object.keys(doc.deleted).length === 0;
 }
 
 /** Stable comparison key (tags keep their user-defined order). */
@@ -50,6 +53,7 @@ export function docKey(doc: SyncDoc) {
   return JSON.stringify([
     [...doc.events].sort((x, y) => x.id.localeCompare(y.id)),
     doc.tags,
+    doc.todos ?? [],
     Object.entries(doc.deleted).sort(),
     doc.profile,
   ]);

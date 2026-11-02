@@ -104,20 +104,21 @@ self.addEventListener("push", (event) => {
       tag: data.tag,
       icon: "/pwa-icon/192",
       badge: "/pwa-icon/96",
-      data: { url: data.url || "/", reminder: data.reminder },
+      data: { url: data.url || "/", reminder: data.reminder, kind: data.kind },
     }),
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const { url = "/", reminder } = event.notification.data || {};
+  const { url = "/", reminder, kind } = event.notification.data || {};
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
       for (const client of clients) {
         if ("focus" in client) {
           // App already open: let it play the in-app animation for this reminder.
           if (reminder) client.postMessage({ type: "romiorg:reminder", reminder });
+          if (kind === "todos") client.postMessage({ type: "romiorg:todos" });
           return client.focus();
         }
       }

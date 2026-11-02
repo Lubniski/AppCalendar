@@ -1,12 +1,14 @@
 "use client";
 
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, ListChecks, Menu } from "lucide-react";
 import { useState } from "react";
 import { addDays, addMonths, dayKey, startOfWeek } from "@/lib/dates";
 import type { CalendarEvent } from "@/lib/types";
 
 type Props = {
   initial: string;
+  todoCount: number;
+  onTodos: () => void;
   cursor: Date;
   showMonthLink: boolean;
   today: Date;
@@ -18,7 +20,7 @@ type Props = {
   onMonthView: () => void;
 };
 
-export function TopBar({ initial, cursor, showMonthLink, today, events, onMenu, onPick, onToday, onAvatar, onMonthView }: Props) {
+export function TopBar({ initial, todoCount, onTodos, cursor, showMonthLink, today, events, onMenu, onPick, onToday, onAvatar, onMonthView }: Props) {
   const [open, setOpen] = useState(false);
   const sameYear = cursor.getFullYear() === today.getFullYear();
   const title = cursor.toLocaleDateString("es-AR", sameYear ? { month: "long" } : { month: "long", year: "numeric" });
@@ -34,6 +36,14 @@ export function TopBar({ initial, cursor, showMonthLink, today, events, onMenu, 
           <ChevronDown size={18} className={`text-muted transition ${open ? "rotate-180" : ""}`} />
         </button>
         <div className="flex-1" />
+        <button onClick={onTodos} aria-label={`Cosas para hacer (${todoCount})`} className="relative flex h-11 w-11 items-center justify-center rounded-full text-ink active:bg-bg">
+          <ListChecks size={22} />
+          {todoCount > 0 && (
+            <span className="absolute right-1 top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-brand-500 px-1 text-[10px] font-semibold text-white">
+              {todoCount > 99 ? "99+" : todoCount}
+            </span>
+          )}
+        </button>
         <button onClick={onToday} aria-label="Ir a hoy" className="flex h-11 w-11 items-center justify-center rounded-full active:bg-bg">
           <span className="relative flex h-[22px] w-[22px] items-center justify-center rounded-[5px] border-2 border-ink text-[10px] font-bold">
             <span className="absolute inset-x-0 -top-px h-[3px] bg-ink" />
